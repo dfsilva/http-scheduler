@@ -1,3 +1,5 @@
+create schema if not exists http_sched
+
 CREATE TABLE IF NOT EXISTS http_sched.http_job_detail
 (
     job_id        varchar primary key,
