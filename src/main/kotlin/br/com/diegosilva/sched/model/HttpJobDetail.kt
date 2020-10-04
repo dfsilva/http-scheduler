@@ -13,8 +13,9 @@ data class HttpJobDetail(@Id val jobId: String,
                          val url: String,
                          val headerParams: String?,
                          val bodyParams: String?,
-                         val queryParams: String?,
-                         @Transient @JsonIgnore val isNewRow:Boolean = true) : Persistable<String> {
+                         val queryParams: String?) : Persistable<String> {
+
+    @Transient @JsonIgnore var isNewRow:Boolean = true
 
 
     override fun getId(): String? {

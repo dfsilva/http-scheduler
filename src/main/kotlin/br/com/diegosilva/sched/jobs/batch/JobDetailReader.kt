@@ -1,21 +1,19 @@
 package br.com.diegosilva.sched.jobs.batch
 
+import br.com.diegosilva.sched.model.HttpJobDetail
+import br.com.diegosilva.sched.repository.JobDetailRepository
 import org.springframework.batch.item.ItemReader
+import org.springframework.data.repository.findByIdOrNull
 
-class JobDetailReader: ItemReader<String> {
+open class JobDetailReader(val jobId: String, val jobDetailRepository: JobDetailRepository) : ItemReader<HttpJobDetail> {
 
-    private val messages = arrayOf("javainuse.com",
-            "Welcome to Spring Batch Example",
-            "We use H2 Database for this example")
+    var jobRunned = false
 
-    private var count = 0
-
-    override fun read(): String? {
-        if (count < messages.size) {
-            return messages[count++];
-        } else {
-            count = 0;
+    override fun read(): HttpJobDetail? {
+        if(!jobRunned){
+            jobRunned = true
+            return jobDetailRepository.findByIdOrNull(jobId)
         }
-        return null;
+        return null
     }
 }

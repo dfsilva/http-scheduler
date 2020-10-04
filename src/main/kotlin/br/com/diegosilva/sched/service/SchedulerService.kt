@@ -35,6 +35,7 @@ class SchedulerService(val factory: SchedulerFactoryBean, val jobDetailRepositor
     }
 
     fun delete(jobId: String): CompletionStage<Boolean> {
+        jobDetailRepository.deleteById(jobId);
         return CompletableFuture.completedFuture(factory.scheduler.deleteJob(JobKey.jobKey(jobId)))
     }
 }
