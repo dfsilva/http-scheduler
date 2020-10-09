@@ -9,8 +9,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface JobDetailRepository: CrudRepository<HttpJobDetail, String> {
 
-//
-//    @Query("insert into http_sched.http_job_detail values()")
-//    fun insert(@Param("detail") detail: HttpJobDetail)
 
 }

@@ -1,11 +1,12 @@
 package br.com.diegosilva.sched.config
 
+import br.com.diegosilva.sched.executors.HttpJobExecutor
 import br.com.diegosilva.sched.jobs.batch.JobDetailProcessor
 import br.com.diegosilva.sched.jobs.batch.JobDetailReader
 import br.com.diegosilva.sched.jobs.batch.JobDetailTasklet
 import br.com.diegosilva.sched.jobs.batch.JobDetailWritter
-import br.com.diegosilva.sched.model.HttpJobDetail
 import br.com.diegosilva.sched.repository.JobDetailRepository
+import br.com.diegosilva.sched.repository.JobExecutionsRepository
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
@@ -45,14 +46,21 @@ class BatchConfig(val jobFactory: JobBuilderFactory, val stepBuilder: StepBuilde
     @Bean
     @StepScope
     fun taskletReader(@Value("#{jobParameters['jobId']}") jobId: String,
-                        jobDetailRepository: JobDetailRepository): Tasklet {
-        return JobDetailTasklet(jobId=jobId, jobDetailRepository = jobDetailRepository)
+                      jobDetailRepository: JobDetailRepository,
+                      jobExecutionsRepository: JobExecutionsRepository,
+                      httpJobExecutor: HttpJobExecutor): Tasklet {
+        return JobDetailTasklet(
+                jobId = jobId, jobDetailRepository = jobDetailRepository,
+                jobExecutionsRepository = jobExecutionsRepository,
+                httpJobExecutor = httpJobExecutor
+        )
     }
 
     @Bean
     @StepScope
     fun jobDetailReader(@Value("#{jobParameters['jobId']}") jobId: String,
-                        jobDetailRepository: JobDetailRepository): JobDetailReader {
+                        jobDetailRepository: JobDetailRepository,
+                        jobExecutionsRepository: JobExecutionsRepository): JobDetailReader {
         return JobDetailReader(jobId = jobId, jobDetailRepository = jobDetailRepository)
     }
 
