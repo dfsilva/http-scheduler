@@ -1,10 +1,11 @@
-package br.com.diegosilva.sched.config
+package br.com.diegosilva.sched.jobs
 
-import br.com.diegosilva.sched.executors.HttpJobExecutor
+import br.com.diegosilva.sched.jobs.executors.HttpJobExecutor
 import br.com.diegosilva.sched.jobs.batch.JobDetailProcessor
 import br.com.diegosilva.sched.jobs.batch.JobDetailReader
 import br.com.diegosilva.sched.jobs.batch.JobDetailTasklet
 import br.com.diegosilva.sched.jobs.batch.JobDetailWritter
+import br.com.diegosilva.sched.model.HttpJobDetail
 import br.com.diegosilva.sched.repository.JobDetailRepository
 import br.com.diegosilva.sched.repository.JobExecutionsRepository
 import org.springframework.batch.core.Job
@@ -31,17 +32,7 @@ class BatchConfig(val jobFactory: JobBuilderFactory, val stepBuilder: StepBuilde
     }
 
     @Bean
-    fun step(jobDetailReader: JobDetailReader,
-             jobDetailProcessos: JobDetailProcessor,
-             jobDetailWritter: JobDetailWritter, taskletReader: Tasklet): Step =
-            stepBuilder.get("httpBatchStep")
-//                    .chunk<HttpJobDetail, HttpJobDetail>(1)
-                    .tasklet(taskletReader)
-//                    .reader(jobDetailReader)
-//                    .processor(jobDetailProcessos)
-//                    .writer(jobDetailWritter)
-                    .build()
-
+    fun step(taskletReader: Tasklet): Step = stepBuilder.get("step").tasklet(taskletReader).build()
 
     @Bean
     @StepScope
@@ -56,23 +47,23 @@ class BatchConfig(val jobFactory: JobBuilderFactory, val stepBuilder: StepBuilde
         )
     }
 
-    @Bean
-    @StepScope
-    fun jobDetailReader(@Value("#{jobParameters['jobId']}") jobId: String,
-                        jobDetailRepository: JobDetailRepository,
-                        jobExecutionsRepository: JobExecutionsRepository): JobDetailReader {
-        return JobDetailReader(jobId = jobId, jobDetailRepository = jobDetailRepository)
-    }
-
-
-    @Bean
-    fun jobDetailWritter(): JobDetailWritter {
-        return JobDetailWritter()
-    }
-
-    @Bean
-    fun jobDetailProcessos(): JobDetailProcessor {
-        return JobDetailProcessor()
-    }
+//    @Bean
+//    @StepScope
+//    fun jobDetailReader(@Value("#{jobParameters['jobId']}") jobId: String,
+//                        jobDetailRepository: JobDetailRepository,
+//                        jobExecutionsRepository: JobExecutionsRepository): JobDetailReader {
+//        return JobDetailReader(jobId = jobId, jobDetailRepository = jobDetailRepository)
+//    }
+//
+//
+//    @Bean
+//    fun jobDetailWritter(): JobDetailWritter {
+//        return JobDetailWritter()
+//    }
+//
+//    @Bean
+//    fun jobDetailProcessos(): JobDetailProcessor {
+//        return JobDetailProcessor()
+//    }
 
 }
