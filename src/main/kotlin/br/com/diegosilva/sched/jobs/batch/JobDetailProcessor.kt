@@ -5,9 +5,6 @@ import org.springframework.batch.item.ItemProcessor
 
 class JobDetailProcessor: ItemProcessor<HttpJobDetail, HttpJobDetail> {
     override fun process(item: HttpJobDetail): HttpJobDetail? {
-
-
-
         return item
     }
 }
