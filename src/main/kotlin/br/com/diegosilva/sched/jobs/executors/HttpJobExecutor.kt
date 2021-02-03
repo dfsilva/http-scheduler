@@ -17,18 +17,24 @@ class HttpJobExecutor(val jobExecutionsRepository: JobExecutionsRepository) {
     fun execute(item: HttpJobDetail) {
         try {
             val mapper = jacksonObjectMapper()
-            val headerParams: Map<String, String> = mapper.readValue(item.headerParams.orEmpty())
-            val queryParams: Map<String, String> = mapper.readValue(item.queryParams.orEmpty())
+            val headerParams: Map<String, String>? = item.headerParams?.let {
+                mapper.readValue(it)
+            }
+            val queryParams: Map<String, String>? = item.queryParams?.let {
+                mapper.readValue(it)
+            }
+
             val str = HttpRequest.request(
                 urlStr = item.url,
                 method = item.method,
                 header = headerParams,
                 params = queryParams,
-                body = item.bodyParams.orEmpty())
+                body = item.bodyParams)
             jobExecutionsRepository.save(HttpJobExecutions(id = null, jobId = item.jobId, dateTime = Date(), result = str))
         }
         catch (e: Exception) {
-            jobExecutionsRepository.save(HttpJobExecutions(id = null, jobId = item.jobId, dateTime = Date(), result = e.message.orEmpty()))
+            jobExecutionsRepository.save(HttpJobExecutions(id = null, jobId = item.jobId, dateTime = Date(), result = e.message.orEmpty(), error = true))
+            throw e
         }
     }
 }

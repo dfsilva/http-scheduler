@@ -23,7 +23,9 @@ object HttpRequest {
         connection.instanceFollowRedirects = false
         connection.requestMethod = method
 
-        header?.entries?.forEach { (key, value)-> connection.setRequestProperty(key, value)}
+        header?.let {
+            it.entries.forEach { (key, value)-> connection.setRequestProperty(key, value)}
+        }
 
         connection.useCaches = false
         connection.connect()
@@ -35,8 +37,8 @@ object HttpRequest {
             wr.close()
         }
 
-        if (body != null) {
-            val bodyBytes = body.toByteArray(charset("UTF-8"))
+        body?.let {
+            val bodyBytes = it.toByteArray(charset("UTF-8"))
             val os: OutputStream = connection.outputStream
             os.write(bodyBytes)
             os.close()
@@ -44,9 +46,12 @@ object HttpRequest {
 
         return if (connection.responseCode === HttpURLConnection.HTTP_OK
                 || connection.responseCode === HttpURLConnection.HTTP_CREATED) {
-            getStringFromInputStream(connection.inputStream)
+            connection.inputStream.bufferedReader().readText()
         } else {
-            throw RuntimeException(getStringFromInputStream(connection.inputStream))
+            connection.inputStream?.let {
+                throw RuntimeException(it.bufferedReader().readText())
+            }
+            throw RuntimeException("Error calling service $urlStr code ${connection.responseCode}")
         }
     }
 
@@ -54,30 +59,5 @@ object HttpRequest {
         return "?" + paramsMap.entries
                 .map { "${URLEncoder.encode(it.key, "UTF-8")}=${URLEncoder.encode(it.value.toString(), "UTF-8")}" }
                 .reduce { acc, str -> "$acc&$str" }
-    }
-
-    private fun getStringFromInputStream(stream: InputStream): String {
-        var br: BufferedReader? = null
-        val sb = StringBuilder()
-        var line = ""
-        try {
-            if (stream != null) {
-                br = BufferedReader(InputStreamReader(stream))
-                while (br?.readLine() != null) {
-                    sb.append(line)
-                }
-            }
-        } catch (e: IOException) {
-            throw e
-        } finally {
-            if (br != null) {
-                try {
-                    br.close()
-                } catch (e: IOException) {
-                    throw e
-                }
-            }
-        }
-        return sb.toString()
     }
 }
