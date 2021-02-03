@@ -47,3 +47,7 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
+tasks.bootJar {
+	archiveFileName.set("http-scheduler.jar")
+}
+
