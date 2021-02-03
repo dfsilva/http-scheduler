@@ -9,5 +9,4 @@ import org.springframework.stereotype.Repository
 @Repository
 interface JobDetailRepository: CrudRepository<HttpJobDetail, String> {
 
-
 }

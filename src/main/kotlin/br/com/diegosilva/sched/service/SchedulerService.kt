@@ -1,7 +1,7 @@
 package br.com.diegosilva.sched.service
 
-import br.com.diegosilva.sched.model.HttpJobDetail
 import br.com.diegosilva.sched.jobs.quartz.HttpJob
+import br.com.diegosilva.sched.model.HttpJobDetail
 import br.com.diegosilva.sched.repository.JobDetailRepository
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.JobBuilder
@@ -16,26 +16,31 @@ import java.util.concurrent.CompletionStage
 class SchedulerService(val factory: SchedulerFactoryBean, val jobDetailRepository: JobDetailRepository) {
 
     fun scheduler(jobDetail: HttpJobDetail): CompletionStage<HttpJobDetail> {
-        jobDetailRepository.save(jobDetail)
+        return CompletableFuture.supplyAsync {
+            jobDetailRepository.save(jobDetail)
 
-        val job = JobBuilder.newJob().ofType(HttpJob::class.java).storeDurably()
+            val job = JobBuilder.newJob().ofType(HttpJob::class.java).storeDurably()
                 .withIdentity(jobDetail.id)
                 .withDescription(jobDetail.description)
                 .usingJobData("jobId", jobDetail.jobId)
                 .build()
 
-        val trigger = TriggerBuilder.newTrigger().forJob(job)
+            val trigger = TriggerBuilder.newTrigger().forJob(job)
                 .withIdentity("trigger_${jobDetail.id}")
                 .withDescription("Trigger ${jobDetail.description}")
                 .withSchedule(cronSchedule(jobDetail.cron))
                 .build()
 
-        factory.scheduler.scheduleJob(job, trigger)
-        return CompletableFuture.completedFuture(jobDetail)
+            factory.scheduler.scheduleJob(job, trigger)
+
+            jobDetail
+        }
     }
 
     fun delete(jobId: String): CompletionStage<Boolean> {
-        jobDetailRepository.deleteById(jobId);
-        return CompletableFuture.completedFuture(factory.scheduler.deleteJob(JobKey.jobKey(jobId)))
+        return CompletableFuture.supplyAsync {
+            jobDetailRepository.deleteById(jobId)
+            factory.scheduler.deleteJob(JobKey.jobKey(jobId))
+        }
     }
 }

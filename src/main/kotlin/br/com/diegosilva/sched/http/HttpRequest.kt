@@ -1,6 +1,7 @@
 package br.com.diegosilva.sched.http
 
 import java.io.*
+import java.lang.RuntimeException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -45,11 +46,9 @@ object HttpRequest {
                 || connection.responseCode === HttpURLConnection.HTTP_CREATED) {
             getStringFromInputStream(connection.inputStream)
         } else {
-            getStringFromInputStream(connection.inputStream)
+            throw RuntimeException(getStringFromInputStream(connection.inputStream))
         }
     }
-
-
 
     private fun createParams(paramsMap: Map<String, Any>): String {
         return "?" + paramsMap.entries
