@@ -1,11 +1,7 @@
 package br.com.diegosilva.sched.jobs
 
-import br.com.diegosilva.sched.jobs.executors.HttpJobExecutor
-import br.com.diegosilva.sched.jobs.batch.JobDetailProcessor
-import br.com.diegosilva.sched.jobs.batch.JobDetailReader
 import br.com.diegosilva.sched.jobs.batch.JobDetailTasklet
-import br.com.diegosilva.sched.jobs.batch.JobDetailWritter
-import br.com.diegosilva.sched.model.HttpJobDetail
+import br.com.diegosilva.sched.jobs.executors.HttpJobExecutor
 import br.com.diegosilva.sched.repository.JobDetailRepository
 import br.com.diegosilva.sched.repository.JobExecutionsRepository
 import org.springframework.batch.core.Job
@@ -19,31 +15,41 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.retry.annotation.EnableRetry
 
-@EnableBatchProcessing
 @Configuration
-class BatchConfig(val jobFactory: JobBuilderFactory, val stepBuilder: StepBuilderFactory) {
+@EnableBatchProcessing
+@EnableRetry
+class BatchConfig(
+    val jobFactory: JobBuilderFactory,
+    val stepBuilder: StepBuilderFactory
+) {
 
     @Bean
     fun processJob(step: Step): Job? {
         return jobFactory.get("httpBatchJob")
-                .incrementer(RunIdIncrementer())
-                .start(step).build()
+            .incrementer(RunIdIncrementer())
+            .start(step).build()
     }
 
     @Bean
-    fun step(taskletReader: Tasklet): Step = stepBuilder.get("step").tasklet(taskletReader).build()
+    fun step(taskletReader: Tasklet): Step = stepBuilder
+        .get("step")
+        .tasklet(taskletReader)
+        .build()
 
     @Bean
     @StepScope
-    fun taskletReader(@Value("#{jobParameters['jobId']}") jobId: String,
-                      jobDetailRepository: JobDetailRepository,
-                      jobExecutionsRepository: JobExecutionsRepository,
-                      httpJobExecutor: HttpJobExecutor): Tasklet {
+    fun taskletReader(
+        @Value("#{jobParameters['jobId']}") jobId: String,
+        jobDetailRepository: JobDetailRepository,
+        jobExecutionsRepository: JobExecutionsRepository,
+        httpJobExecutor: HttpJobExecutor
+    ): Tasklet {
         return JobDetailTasklet(
-                jobId = jobId, jobDetailRepository = jobDetailRepository,
-                jobExecutionsRepository = jobExecutionsRepository,
-                httpJobExecutor = httpJobExecutor
+            jobId = jobId, jobDetailRepository = jobDetailRepository,
+            jobExecutionsRepository = jobExecutionsRepository,
+            httpJobExecutor = httpJobExecutor
         )
     }
 
