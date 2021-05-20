@@ -24,10 +24,9 @@ class BatchConfig(
     val jobFactory: JobBuilderFactory,
     val stepBuilder: StepBuilderFactory
 ) {
-
     @Bean
     fun processJob(step: Step): Job? {
-        return jobFactory.get("httpBatchJob")
+        return jobFactory.get("HttpBatchJob")
             .incrementer(RunIdIncrementer())
             .start(step).build()
     }

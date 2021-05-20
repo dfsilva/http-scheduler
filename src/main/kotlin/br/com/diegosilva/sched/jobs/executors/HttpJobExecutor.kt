@@ -7,6 +7,9 @@ import br.com.diegosilva.sched.repository.JobExecutionsRepository
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.PropertySource
+import org.springframework.core.env.Environment
+import org.springframework.core.env.get
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -18,9 +21,9 @@ class HttpJobExecutor(val jobExecutionsRepository: JobExecutionsRepository) {
 
     private val log = LoggerFactory.getLogger(HttpJobExecutor::class.java)
 
-    @Retryable(maxAttempts = 10, backoff = Backoff(5000))
+    @Retryable(maxAttemptsExpression = "\${retry.maxAttempts}", backoff = Backoff(delayExpression = "\${retry.backoff}"))
     fun execute(item: HttpJobDetail) {
-        try {
+//        try {
             log.debug("Executando job ${item.jobId}")
 
             val mapper = jacksonObjectMapper()
@@ -46,18 +49,18 @@ class HttpJobExecutor(val jobExecutionsRepository: JobExecutionsRepository) {
                     result = str
                 )
             )
-        } catch (e: Exception) {
-            log.error("Job com erro ${item.jobId}")
-            jobExecutionsRepository.save(
-                HttpJobExecutions(
-                    id = null,
-                    jobId = item.jobId,
-                    dateTime = Date(),
-                    result = e.message.orEmpty(),
-                    error = true
-                )
-            )
-            throw e
-        }
+//        } catch (e: Exception) {
+//            log.error("Job com erro ${item.jobId}")
+////            jobExecutionsRepository.save(
+////                HttpJobExecutions(
+////                    id = null,
+////                    jobId = item.jobId,
+////                    dateTime = Date(),
+////                    result = e.message.orEmpty(),
+////                    error = true
+////                )
+////            )
+//            throw e
+//        }
     }
 }
