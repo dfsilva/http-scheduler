@@ -5,7 +5,6 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface JobExecutionsRepository : CrudRepository<HttpJobExecutions, Long> {
-
+interface HttpJobExecutionsRepository : CrudRepository<HttpJobExecutions, Long> {
 
 }
