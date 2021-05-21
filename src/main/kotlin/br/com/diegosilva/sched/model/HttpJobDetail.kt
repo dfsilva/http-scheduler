@@ -14,10 +14,18 @@ data class HttpJobDetail(@Id val jobId: String,
                          val method: String,
                          val headerParams: String?,
                          val bodyParams: String?,
-                         val queryParams: String?) : Persistable<String> {
+                         val queryParams: String?,
+                         val status: String = "created") : Persistable<String> {
 
     @Transient @JsonIgnore var isNewRow:Boolean = true
 
     override fun getId(): String? = jobId
     override fun isNew(): Boolean = isNewRow
+
+    companion object{
+        fun forUpdate(jobDetail: HttpJobDetail): HttpJobDetail {
+            jobDetail.isNewRow = false
+            return jobDetail
+        }
+    }
 }

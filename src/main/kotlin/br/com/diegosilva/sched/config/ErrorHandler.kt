@@ -1,6 +1,8 @@
 package br.com.diegosilva.sched.config
 
 
+import br.com.diegosilva.sched.service.SchedulerService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -13,6 +15,8 @@ class ErrorDTO(var message:String?, var code:Int)
 
 @RestControllerAdvice
 class ErrorHandler {
+
+    private val log = LoggerFactory.getLogger(ErrorHandler::class.java)
 
 //    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
 //    @ExceptionHandler(DenatranServiceException::class)
@@ -30,12 +34,14 @@ class ErrorHandler {
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception::class)
     fun handleGeneric(exception: Exception, request: HttpServletRequest?): ErrorDTO {
+        log.error(exception.message, exception)
         return ErrorDTO(exception.message, 500)
     }
 
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handle404(exception: Exception, request: HttpServletRequest?): ErrorDTO {
+        log.error(exception.message, exception)
         return ErrorDTO(exception.message, 500)
     }
 

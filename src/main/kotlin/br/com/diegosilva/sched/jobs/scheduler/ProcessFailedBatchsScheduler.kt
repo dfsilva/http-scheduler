@@ -10,15 +10,9 @@ class ProcessFailedBatchsScheduler(val schedulerService: SchedulerService) {
 
     private val log = LoggerFactory.getLogger(ProcessFailedBatchsScheduler::class.java)
 
-    //    @Scheduled(cron = "0 15 0 * * ?")
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "0 0 0/1 * * *")//executar a cada hora
     fun executar() {
         log.debug("----Reprocessando batchs que falharam")
-
+        schedulerService.runFailedJobs()
     }
-
-//    @Scheduled(cron = "1 0 0 0 0 *")
-//    fun executarAoIniciar() {
-//        log.debug("--Reprocessando batchs que falharam")
-//    }
 }
