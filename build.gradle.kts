@@ -21,9 +21,11 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-batch")
 	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-quartz")
-	implementation("org.springframework.boot:spring-boot-starter-rsocket")
+//	implementation("org.springframework.boot:spring-boot-starter-rsocket")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 //	implementation("org.springframework.boot:spring-boot-starter-security")
+
+//	implementation("org.springframework.boot:spring-retry")
 
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")

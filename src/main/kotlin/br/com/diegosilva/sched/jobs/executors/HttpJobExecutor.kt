@@ -19,7 +19,7 @@ class HttpJobExecutor {
         maxAttemptsExpression = "\${retry.maxAttempts}",
         backoff = Backoff(delayExpression = "\${retry.backoff}", multiplier = 1.3, maxDelay = 100000)
     )
-    fun execute(item: HttpJobDetail) {
+    fun execute(item: HttpJobDetail): String {
         log.debug("Executando job ${item.jobId}")
 
         val mapper = jacksonObjectMapper()
@@ -30,7 +30,7 @@ class HttpJobExecutor {
             mapper.readValue(it)
         }
 
-        HttpRequest.request(
+        return HttpRequest.request(
             urlStr = item.url,
             method = item.method,
             header = headerParams,

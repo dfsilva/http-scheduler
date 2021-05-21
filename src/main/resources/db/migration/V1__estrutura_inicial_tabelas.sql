@@ -9,6 +9,15 @@ CREATE TABLE IF NOT EXISTS http_sched.http_job_detail
     method        varchar not null,
     header_params varchar null,
     body_params   varchar null,
-    query_params  varchar null,
-    status        varchar not null
+    query_params  varchar null
+);
+
+
+CREATE TABLE IF NOT EXISTS http_sched.http_job_executions
+(
+    id        serial primary key,
+    job_id    varchar   not null,
+    date_time timestamp not null,
+    result    text      null,
+    status    varchar   not null
 );

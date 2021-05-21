@@ -3,21 +3,17 @@ package br.com.diegosilva.sched.service
 import br.com.diegosilva.sched.jobs.executors.HttpJobExecutor
 import br.com.diegosilva.sched.jobs.quartz.QuartzHttpJob
 import br.com.diegosilva.sched.model.HttpJobDetail
+import br.com.diegosilva.sched.model.HttpJobExecutions
 import br.com.diegosilva.sched.repository.HttpJobDetailRepository
+import br.com.diegosilva.sched.repository.HttpJobExecutionsRepository
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.JobBuilder
 import org.quartz.JobKey
 import org.quartz.TriggerBuilder
 import org.slf4j.LoggerFactory
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory
-import org.springframework.batch.core.launch.JobLauncher
-import org.springframework.batch.core.launch.support.RunIdIncrementer
-import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
 import org.springframework.stereotype.Service
-import java.time.Instant
+import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
@@ -25,9 +21,7 @@ import java.util.concurrent.CompletionStage
 class SchedulerService(
     val factory: SchedulerFactoryBean,
     val httpJobDetailRepository: HttpJobDetailRepository,
-    val jobLauncher: JobLauncher,
-    val jobFactory: JobBuilderFactory,
-    val stepBuilder: StepBuilderFactory,
+    val httpJobExecutionsRepository: HttpJobExecutionsRepository,
     val httpJobExecutor: HttpJobExecutor
 ) {
 
@@ -68,51 +62,30 @@ class SchedulerService(
     }
 
     fun runFailedJobs() {
-        httpJobDetailRepository.getIdsWithErrors().forEach {
+        httpJobExecutionsRepository.getIdsWithErrors().forEach {
             log.debug("Reesecutando $it")
             runJob(it)
         }
     }
 
     fun runJob(jobId: String) {
-
         httpJobDetailRepository.findById(jobId).ifPresent { httpJob ->
-
-            httpJobDetailRepository.save(HttpJobDetail.forUpdate(httpJob.copy(status = "running")))
-
-            val jobParameters = JobParametersBuilder()
-                .addString("jobId", jobId)
-                .addLong("timestamp", Instant.now().epochSecond)
-                .toJobParameters()
-
-            log.debug("Vai chamar o SPRINGBATCH para executar a job $jobId")
-
-            val processJob = jobFactory
-                .get(jobId)
-                .incrementer(RunIdIncrementer())
-                .start(stepBuilder
-                    .get("step-${jobId}")
-                    .tasklet { _, _ ->
-                        httpJobExecutor.execute(httpJob)
-                        RepeatStatus.FINISHED
-                    }
-                    .build()).build()
-
-            val jobExecution = jobLauncher.run(processJob, jobParameters)
-
-            if (jobExecution.allFailureExceptions.isNotEmpty()) {
-                httpJobDetailRepository.save(HttpJobDetail.forUpdate(httpJob.copy(status = "error")))
-            } else {
-                httpJobDetailRepository.save(HttpJobDetail.forUpdate(httpJob.copy(status = "success")))
-            }
-            log.debug(
-                "Executou SPRINTBATCH para a job $jobId " +
-                        "com retorno ${jobExecution.exitStatus.exitCode}" +
-                        " com ${jobExecution.allFailureExceptions.size} erros"
+            val jobExecution = httpJobExecutionsRepository.save(
+                HttpJobExecutions(
+                    jobId = httpJob.jobId,
+                    status = "running",
+                    dateTime = LocalDateTime.now(),
+                    result = ""
+                )
             )
-
+            log.debug("Vai chamar o SPRINGBATCH para executar a job $jobId")
+            try {
+                val result = httpJobExecutor.execute(httpJob)
+                httpJobExecutionsRepository.save(jobExecution.copy(status = "success", result = result))
+            } catch (ex: Exception) {
+                httpJobExecutionsRepository.save(jobExecution.copy(status = "error", result = ex.message))
+            }
+            log.debug("Executou SPRINTBATCH para a job $jobId ")
         }
-
-
     }
 }
