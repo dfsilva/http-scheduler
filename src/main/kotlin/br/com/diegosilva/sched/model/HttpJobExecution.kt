@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
 
 @Table("http_job_executions")
-data class HttpJobExecutions(
+data class HttpJobExecution(
     @Id var id: Long? = null,
     val jobId: String,
     val dateTime: LocalDateTime,

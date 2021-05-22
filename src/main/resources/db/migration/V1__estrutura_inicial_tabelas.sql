@@ -12,6 +12,13 @@ CREATE TABLE IF NOT EXISTS http_sched.http_job_detail
     query_params  varchar null
 );
 
+CREATE TABLE IF NOT EXISTS http_sched.http_last_job_executions
+(
+    job_id     varchar primary key,
+    date_time timestamp not null,
+    status    varchar   not null,
+    result    text      null
+);
 
 CREATE TABLE IF NOT EXISTS http_sched.http_job_executions
 (
@@ -20,4 +27,10 @@ CREATE TABLE IF NOT EXISTS http_sched.http_job_executions
     date_time timestamp not null,
     result    text      null,
     status    varchar   not null
+);
+
+CREATE TABLE IF NOT EXISTS http_sched.http_running_jobs
+(
+    job_id     varchar primary key,
+    start_time timestamp not null
 );
