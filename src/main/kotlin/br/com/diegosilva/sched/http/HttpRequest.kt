@@ -1,7 +1,7 @@
 package br.com.diegosilva.sched.http
 
-import java.io.*
-import java.lang.RuntimeException
+import java.io.DataOutputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -9,11 +9,13 @@ import java.net.URLEncoder
 
 object HttpRequest {
 
-    fun request(urlStr: String,
-                method: String,
-                params: Map<String, Any>? = null,
-                body: String? = null,
-                header: Map<String, String>? = null): String {
+    fun request(
+        urlStr: String,
+        method: String,
+        params: Map<String, Any>? = null,
+        body: String? = null,
+        header: Map<String, String>? = null
+    ): String {
 
         val url = URL(urlStr)
 
@@ -24,7 +26,7 @@ object HttpRequest {
         connection.requestMethod = method
 
         header?.let {
-            it.entries.forEach { (key, value)-> connection.setRequestProperty(key, value)}
+            it.entries.forEach { (key, value) -> connection.setRequestProperty(key, value) }
         }
 
         connection.useCaches = false
@@ -45,7 +47,8 @@ object HttpRequest {
         }
 
         return if (connection.responseCode === HttpURLConnection.HTTP_OK
-                || connection.responseCode === HttpURLConnection.HTTP_CREATED) {
+            || connection.responseCode === HttpURLConnection.HTTP_CREATED
+        ) {
             connection.inputStream.bufferedReader().readText()
         } else {
             connection.inputStream?.let {
@@ -57,7 +60,7 @@ object HttpRequest {
 
     private fun createParams(paramsMap: Map<String, Any>): String {
         return "?" + paramsMap.entries
-                .map { "${URLEncoder.encode(it.key, "UTF-8")}=${URLEncoder.encode(it.value.toString(), "UTF-8")}" }
-                .reduce { acc, str -> "$acc&$str" }
+            .map { "${URLEncoder.encode(it.key, "UTF-8")}=${URLEncoder.encode(it.value.toString(), "UTF-8")}" }
+            .reduce { acc, str -> "$acc&$str" }
     }
 }

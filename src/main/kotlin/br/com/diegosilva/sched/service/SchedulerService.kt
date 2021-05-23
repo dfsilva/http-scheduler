@@ -82,9 +82,7 @@ class SchedulerService(
     fun runJob(jobId: String) {
         httpJobDetailRepository.findById(jobId).ifPresent { httpJob ->
             if (!httpRunningJobRepository.findById(httpJob.jobId).isPresent) {
-
                 httpRunningJobRepository.save(HttpRunningJob(jobId, LocalDateTime.now()))
-
                 val lastJobExecution = httpLastJobExecutionRepository.findById(httpJob.jobId).map {
                     httpLastJobExecutionRepository.save(
                         HttpLastJobExecution.toUpdate(
@@ -98,7 +96,6 @@ class SchedulerService(
                 }.orElseGet {
                     httpLastJobExecutionRepository.save(HttpLastJobExecution(jobId))
                 }
-
                 val jobExecution = httpJobExecutionsRepository.save(
                     HttpJobExecution(
                         jobId = httpJob.jobId,

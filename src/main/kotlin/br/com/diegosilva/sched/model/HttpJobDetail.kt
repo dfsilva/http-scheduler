@@ -7,21 +7,25 @@ import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Table
 
 @Table("http_job_detail")
-data class HttpJobDetail(@Id val jobId: String,
-                         val description: String,
-                         val cron: String,
-                         val url: String,
-                         val method: String,
-                         val headerParams: String?,
-                         val bodyParams: String?,
-                         val queryParams: String?) : Persistable<String> {
+data class HttpJobDetail(
+    @Id val jobId: String,
+    val description: String,
+    val cron: String,
+    val url: String,
+    val method: String,
+    val headerParams: String?,
+    val bodyParams: String?,
+    val queryParams: String?
+) : Persistable<String> {
 
-    @Transient @JsonIgnore var isNewRow:Boolean = true
+    @Transient
+    @JsonIgnore
+    var isNewRow: Boolean = true
 
     override fun getId(): String? = jobId
     override fun isNew(): Boolean = isNewRow
 
-    companion object{
+    companion object {
         fun toUpdate(jobDetail: HttpJobDetail): HttpJobDetail {
             jobDetail.isNewRow = false
             return jobDetail

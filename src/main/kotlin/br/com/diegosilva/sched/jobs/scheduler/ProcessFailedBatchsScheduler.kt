@@ -12,13 +12,7 @@ class ProcessFailedBatchsScheduler(val schedulerService: SchedulerService) {
 
     @Scheduled(cron = "0 0 0/1 * * *")
     fun executar() {
-        log.debug("--- Running hour scheduler to resent jobs")
+        log.debug("Executando scheduler para reexecutar as jobs")
         schedulerService.runFailedJobs()
     }
-
-//    @Scheduled(cron = "*/1 * * * * *")
-//    fun executar2() {
-//        log.debug("---Running first and once scheduler")
-//        schedulerService.runFailedJobs()
-//    }
 }

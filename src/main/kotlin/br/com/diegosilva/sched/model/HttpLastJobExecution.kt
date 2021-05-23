@@ -15,13 +15,15 @@ data class HttpLastJobExecution(
     val result: String? = null
 ) : Persistable<String> {
 
-    @Transient @JsonIgnore var isNewRow:Boolean = true
+    @Transient
+    @JsonIgnore
+    var isNewRow: Boolean = true
 
     override fun getId(): String? = jobId
     override fun isNew(): Boolean = isNewRow
 
 
-    companion object{
+    companion object {
         fun toUpdate(jobDetail: HttpLastJobExecution): HttpLastJobExecution {
             jobDetail.isNewRow = false
             return jobDetail

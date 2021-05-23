@@ -1,7 +1,6 @@
 package br.com.diegosilva.sched.config
 
 
-import br.com.diegosilva.sched.service.SchedulerService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -11,7 +10,7 @@ import org.springframework.web.servlet.NoHandlerFoundException
 import javax.servlet.http.HttpServletRequest
 
 
-class ErrorDTO(var message:String?, var code:Int)
+class ErrorDTO(var message: String?, var code: Int)
 
 @RestControllerAdvice
 class ErrorHandler {

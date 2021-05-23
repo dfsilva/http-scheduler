@@ -6,12 +6,12 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface HttpLastJobExecutionRepository : CrudRepository<HttpLastJobExecution, String>{
+interface HttpLastJobExecutionRepository : CrudRepository<HttpLastJobExecution, String> {
 
-    @Query("select distinct job_id from last_job_executions where status = 'error'")
+    @Query("select distinct job_id from http_last_job_executions where status = 'error'")
     fun getErrorsIds(): List<String>
 
 
-    @Query("select distinct job_id from last_job_executions where status = 'running'")
+    @Query("select distinct job_id from http_last_job_executions where status = 'running'")
     fun getRunningIds(): List<String>
 }
