@@ -30,7 +30,6 @@ object HttpRequest {
         }
 
         connection.useCaches = false
-        connection.connect()
 
         params?.let {
             val wr = DataOutputStream(connection.outputStream)
@@ -45,6 +44,8 @@ object HttpRequest {
             os.write(bodyBytes)
             os.close()
         }
+
+        connection.connect()
 
         return if (connection.responseCode === HttpURLConnection.HTTP_OK
             || connection.responseCode === HttpURLConnection.HTTP_CREATED
